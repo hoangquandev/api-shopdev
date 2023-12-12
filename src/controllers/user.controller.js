@@ -50,6 +50,7 @@ const login = asyncHandler(async (req, res) => {
         return res.status(200).json({
             sucess: true,
             accessToken,
+            refreshToken: newRefreshToken,
             role: role,
             userData
         })
@@ -67,12 +68,12 @@ const getCurrent = asyncHandler(async (req, res) => {
 })
 const refreshAccessToken = asyncHandler(async (req, res) => {
     // Lấy token từ cookies
-    const cookie = req.cookies
+    const { refreshToken } = req.body
     // Check xem có token hay không
-    if (!cookie && !cookie.refreshToken) throw new Error('No refresh token in cookies')
+    if (!refreshToken) throw new Error('No refresh token in cookies')
     // Check token có hợp lệ hay không
-    const rs = await jwt.verify(cookie.refreshToken, process.env.JWT_SECRET)
-    const response = await User.findOne({ _id: rs._id, refreshToken: cookie.refreshToken })
+    const rs = await jwt.verify(refreshToken, process.env.JWT_SECRET)
+    const response = await User.findOne({ _id: rs._id, refreshToken: refreshToken })
     return res.status(200).json({
         success: response ? true : false,
         newAccessToken: response ? generateAccessToken(response._id, response.role) : 'Refresh token not matched'
