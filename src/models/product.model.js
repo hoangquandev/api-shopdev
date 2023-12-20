@@ -1,73 +1,83 @@
-const mongoose = require('mongoose'); // Erase if already required
+// models/Product.js
 
-// Declare the Schema of the Mongo model
-var productSchema = new mongoose.Schema({
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+const slugify = require('slugify');
+
+const productSchema = new Schema({
     name: {
         type: String,
         required: true,
-        trim: true
     },
-    // slug: {
-    //     type: String,
-    //     required: true,
-    //     unique: true,
-    //     lowercase: true
-    // },
     description: {
         type: String,
         required: true,
     },
     brand: {
-        type: String
-    },
-    price: {
-        type: Number,
-        required: true
-    },
-    regular_price: {
-        type: Number,
-    },
-    category: {
         type: String,
-        // type: mongoose.Types.ObjectId,
-        // ref: 'Category'
     },
     stock: {
         type: Number,
-        default: 0
+        required: true,
+    },
+    price: {
+        type: Number,
+        required: true,
+    },
+    salePrice: {
+        type: Number,
     },
     published: {
         type: Boolean,
-        default: true
+        default: false,
     },
     sold: {
         type: Number,
-        default: 0
+        default: 0,
+    },
+    category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
     },
     thumbnail: {
         type: String,
     },
-    images: {
-        type: Array
-    },
-    color: {
-        type: String,
-        enum: ['Black', 'Grown', 'Red']
-    },
+    images: [
+        {
+            type: String,
+        },
+    ],
     ratings: [
         {
-            star: { type: Number },
-            postedBy: { type: mongoose.Types.ObjectId, ref: 'User' },
-            comment: { type: String }
-        }
+            userId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+            },
+            rating: {
+                type: Number,
+                min: 1,
+                max: 5,
+            },
+            comment: {
+                type: String,
+            },
+        },
     ],
-    totalRatings: {
-        type: Number,
-        default: 0
-    }
-}, {
-    timestamps: true
+    slug: {
+        type: String,
+        unique: true,
+    },
+    // You can add more fields based on your specific product requirements
 });
 
-//Export the model
-module.exports = mongoose.model('Product', productSchema);
+// Pre-save middleware to generate and set the slug
+productSchema.pre('save', function (next) {
+    if (this.isModified('name')) {
+        this.slug = slugify(this.name, { lower: true });
+    }
+    next();
+});
+
+const Product = mongoose.model('Product', productSchema);
+
+module.exports = Product;
