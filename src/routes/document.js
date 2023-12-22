@@ -15,5 +15,8 @@ router.get('/products', (req, res) => {
 router.get('/orders', (req, res) => {
     res.render('orderApi');
 });
+router.get('/site-settings', (req, res) => {
+    res.render('siteSettingsApi');
+});
 
 module.exports = router
