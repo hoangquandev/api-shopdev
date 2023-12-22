@@ -12,5 +12,8 @@ router.get('/brand', (req, res) => {
 router.get('/products', (req, res) => {
     res.render('productApiDocumentation');
 });
+router.get('/orders', (req, res) => {
+    res.render('orderApi');
+});
 
 module.exports = router

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order API Documentation</title>
+    <!-- Add any additional styling or external CSS links here -->
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        h1,
+        h2 {
+            color: #333;
+        }
+
+        pre {
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #000;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            color: #fff;
+            padding: 5px;
+            border-radius: 3px;
+            background-color: #000;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Order API Documentation</h1>
+    <section>
+        <h2>Order Model</h2>
+        <p>The structure of the Order model.</p>
+        <pre>
+    <code>
+{
+    "_id": "string",
+    "customer": {
+        "_id": "string",
+        "name": "string",
+        "email": "string",
+        // ... other customer details
+    },
+    "products": [
+        {
+            "_id": "string",
+            "name": "string",
+            "price": 0.00,
+            // ... other product details
+        },
+        // ... other products
+    ],
+    "totalPrice": 0.00,
+    "status": 'New'|| 'Seen' ( default: 'New' )
+    "orderStatus": 'Pending'|| 'Processing'|| 'Shipped'|| 'Delivered'|| 'Cancel'
+    "paymentStatus": 'Unpaid'|| 'Paid',
+    "paymentMethod": 'Credit Card'|| 'PayPal'|| 'Bank Transfer'|| 'Cash on Delivery'|| 'Other',
+}
+    </code>
+</pre>
+    </section>
+    <section>
+        <h2>Get All Orders Sorted By Status</h2>
+        <p>Retrieve a list of all orders sorted by order status.</p>
+        <pre>
+        <code>
+    GET /orders/sorted-by-status
+        </code>
+    </pre>
+        <h3>Example Response</h3>
+        <pre>
+        <code>
+    200 OK
+    {
+        "success": true,
+        "message": "Orders retrieved and sorted successfully",
+        "data": [
+            {
+                "_id": "order_id_2",
+                "customer": "customer_id_2",
+                "products": [...],
+                "totalPrice": 150.00,
+                "orderStatus": "Processing",
+                "paymentStatus": "Paid",
+                "createdAt": "2022-01-02T12:34:56.789Z",
+                "updatedAt": "2022-01-02T12:34:56.789Z"
+            },
+            {
+                "_id": "order_id_1",
+                "customer": "customer_id_1",
+                "products": [...],
+                "totalPrice": 100.00,
+                "orderStatus": "Pending",
+                "paymentStatus": "Unpaid",
+                "createdAt": "2022-01-01T12:34:56.789Z",
+                "updatedAt": "2022-01-01T12:34:56.789Z"
+            },
+            // ... other orders
+        ]
+    }
+        </code>
+    </pre>
+    </section>
+    <section>
+        <!-- Add this section to the existing HTML -->
+
+        <h2>Create Order</h2>
+        <p>Create a new order.</p>
+        <pre>
+    <code>
+POST /orders
+Content-Type: application/json
+
+{
+    "customer": "customer_id_1",
+    "products": [
+        {
+            "product": "product_id_1",
+            "quantity": 2
+        },
+        // ... other products
+    ],
+    "totalPrice": 100.00,
+    "orderStatus": "Pending",
+    "paymentStatus": "Unpaid"
+}
+    </code>
+</pre>
+        <h3>Example Response</h3>
+        <pre>
+    <code>
+201 Created
+{
+    "success": true,
+    "message": "Order created successfully",
+    "data": {
+        "_id": "order_id_3",
+        "customer": "customer_id_1",
+        "products": [...],
+        "totalPrice": 100.00,
+        "orderStatus": "Pending",
+        "paymentStatus": "Unpaid",
+        "createdAt": "2022-01-03T12:34:56.789Z",
+        "updatedAt": "2022-01-03T12:34:56.789Z"
+    }
+}
+    </code>
+</pre>
+    </section>
+    <section>
+        <h2>Update Order Status By Admin</h2>
+        <p>Update the status of a specific order by an admin.</p>
+        <pre>
+    <code>
+PUT /orders/:orderId/update-status
+Content-Type: application/json
+
+{
+    "status": "New",
+    "orderStatus": "Shipped",
+    "paymentStatus": "Paid"
+}
+    </code>
+</pre>
+        <h3>Example Response</h3>
+        <pre>
+    <code>
+200 OK
+{
+    "success": true,
+    "message": "Order updated successfully",
+    "data": {
+        "_id": "order_id_1",
+        "customer": "customer_id_1",
+        "products": [...],
+        "totalPrice": 100.00,
+        "orderStatus": "Shipped",
+        "paymentStatus": "Paid",
+        "createdAt": "2022-01-01T12:34:56.789Z",
+        "updatedAt": "2022-01-01T12:34:56.789Z"
+    }
+}
+    </code>
+</pre>
+    </section>
+    <section>
+        <h2>Cancel Order and Update Payment Method</h2>
+        <p>Cancel a specific order and update the payment method by a user.</p>
+        <pre>
+    <code>
+PUT /orders/:orderId/cancel
+Content-Type: application/json
+
+{
+    "orderStatus": "Cancel",
+    "paymentMethod": "New Payment Method"
+}
+    </code>
+</pre>
+        <h3>Example Response</h3>
+        <pre>
+    <code>
+200 OK
+{
+    "success": true,
+    "message": "Order status and payment method updated successfully",
+    "data": {
+        "_id": "order_id_1",
+        "customer": "customer_id_1",
+        "products": [...],
+        "totalPrice": 100.00,
+        "orderStatus": "Cancel",
+        "paymentStatus": "Unpaid",
+        "createdAt": "2022-01-01T12:34:56.789Z",
+        "updatedAt": "2022-01-01T12:34:56.789Z"
+    }
+}
+    </code>
+</pre>
+    </section>
+    <section>
+        <h2>Get All Orders By User</h2>
+        <p>Retrieve a list of all orders for a specific user.</p>
+        <pre>
+    <code>
+GET /orders/user
+    </code>
+</pre>
+        <h3>Example Response</h3>
+        <pre>
+    <code>
+200 OK
+{
+    "success": true,
+    "message": "User orders retrieved successfully",
+    "data": [
+        {
+            "_id": "order_id_1",
+            "customer": "customer_id_1",
+            "products": [...],
+            "totalPrice": 100.00,
+            "orderStatus": "Pending",
+            "paymentStatus": "Unpaid",
+            "createdAt": "2022-01-01T12:34:56.789Z",
+            "updatedAt": "2022-01-01T12:34:56.789Z"
+        },
+        {
+            "_id": "order_id_2",
+            "customer": "customer_id_1",
+            "products": [...],
+            "totalPrice": 150.00,
+            "orderStatus": "Processing",
+            "paymentStatus": "Paid",
+            "createdAt": "2022-01-02T12:34:56.789Z",
+            "updatedAt": "2022-01-02T12:34:56.789Z"
+        },
+        // ... other orders for the user
+    ]
+}
+    </code>
+    </section>
+    <section>
+        <h2>Get Order Details</h2>
+<p>Retrieve details of a specific order.</p>
+<pre>
+    <code>
+GET /orders/:orderId/details
+    </code>
+</pre>
+        <h3>Example Response</h3>
+        <pre>
+    <code>
+200 OK
+{
+    "success": true,
+    "message": "Order details retrieved successfully",
+    "data": {
+        "_id": "order_id_1",
+        "customer": "customer_id_1",
+        "products": [...],
+        "totalPrice": 100.00,
+        "orderStatus": "Pending",
+        "paymentStatus": "Unpaid",
+        "createdAt": "2022-01-01T12:34:56.789Z",
+        "updatedAt": "2022-01-01T12:34:56.789Z"
+    }
+}
+    </code>
+</pre>
+    </section>
+    <section>
+        <h2>Delete Order By Admin</h2>
+        <p>Delete a specific order by an admin.</p>
+        <pre>
+    <code>
+DELETE /orders/:orderId/delete
+    </code>
+</pre>
+        <h3>Example Response</h3>
+        <pre>
+    <code>
+200 OK
+{
+    "success": true,
+    "message": "Order deleted successfully",
+    "data": {
+        "_id": "order_id_1",
+        "customer": "customer_id_1",
+        "products": [...],
+        "totalPrice": 100.00,
+        "orderStatus": "Pending",
+        "paymentStatus": "Unpaid",
+        "createdAt": "2022-01-01T12:34:56.789Z",
+        "updatedAt": "2022-01-01T12:34:56.789Z"
+    }
+}
+    </code>
+</pre>
+    </section>
+
+
+    <!-- Add a link to return to the main API documentation -->
+    <a href="/api/documentation">Back to Main Documentation</a>
+</body>
+
+</html>
