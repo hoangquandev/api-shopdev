@@ -5,12 +5,12 @@ const { verifyAccessToken, isAdmin } = require('../middlewares/verifyToken')
 
 
 router.post('/', [verifyAccessToken, isAdmin], ctrls.createBrand)
-router.get('/', ctrls.getBrands)
+router.get('/', ctrls.getAllBrand)
 
 
-router.put('/:pid', [verifyAccessToken, isAdmin], ctrls.updateBrand)
-router.delete('/:pid', [verifyAccessToken, isAdmin], ctrls.deleteBrand)
-// router.get('/:pid', ctrls.getProduct)
+router.get('/:brandId', ctrls.getBrand)
+router.put('/:brandId', [verifyAccessToken, isAdmin], ctrls.updateBrand)
+router.delete('/:brandId', [verifyAccessToken, isAdmin], ctrls.deleteBrand)
 
 
 module.exports = router

@@ -8,8 +8,9 @@ router.post('/', [verifyAccessToken, isAdmin], ctrls.createCategory)
 router.get('/', ctrls.getCategories)
 
 
-router.put('/:pid', [verifyAccessToken, isAdmin], ctrls.updateCategory)
-router.delete('/:pid', [verifyAccessToken, isAdmin], ctrls.deleteCategory)
+router.get('/:categoryId', ctrls.getCategory)
+router.put('/:categoryId', [verifyAccessToken, isAdmin], ctrls.updateCategory)
+router.delete('/:categoryId', [verifyAccessToken, isAdmin], ctrls.deleteCategory)
 // router.get('/:pid', ctrls.getProduct)
 
 

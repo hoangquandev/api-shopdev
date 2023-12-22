@@ -8,9 +8,9 @@ router.post('/', [verifyAccessToken, isAdmin], ctrls.createProduct)
 router.get('/', ctrls.getProducts)
 
 
-router.put('/:pid', [verifyAccessToken, isAdmin], ctrls.updateProduct)
-router.delete('/:pid', [verifyAccessToken, isAdmin], ctrls.deleteProduct)
-router.get('/:pid', ctrls.getProduct)
+router.put('/:id', [verifyAccessToken, isAdmin], ctrls.updateProduct)
+router.delete('/:id', [verifyAccessToken, isAdmin], ctrls.deleteProduct)
+router.get('/:slug', ctrls.getProduct)
 
 
 module.exports = router

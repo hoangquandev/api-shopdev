@@ -1,41 +1,51 @@
 const Brand = require('../models/brand.model')
-const asyncHandler = require('express-async-handler')
+const asyncHandler = require('express-async-handler');
+const { sendResponse } = require('../utils/sendResponse');
 
 
 const createBrand = asyncHandler(async (req, res) => {
-    const response = await Brand.create(req.body)
-    return res.status(200).json({
-        success: response ? true : false,
-        data: response ? response : "Can not create new Brand"
-    })
+    const brand = new Brand(req.body);
+    const savedBrand = await brand.save();
+    sendResponse(res, 201, 'Brand created successfully', savedBrand);
 })
-const getBrands = asyncHandler(async (req, res) => {
-    const response = await Brand.find()
-    return res.status(200).json(
-        // success: response ? true : false,
-        response ? response : "Can not get brands list"
-    )
+
+const getAllBrand = asyncHandler(async (req, res) => {
+    const brands = await Brand.find();
+    sendResponse(res, 200, 'Categories retrieved successfully', brands);
+})
+const getBrand = asyncHandler(async (req, res) => {
+    const brand = await Brand.findById(req.params.brandId);
+    if (!brand) {
+        sendResponse(res, 404, 'Brand not found', null);
+    } else {
+        sendResponse(res, 200, 'Brand retrieved successfully', brand);
+    }
 })
 const updateBrand = asyncHandler(async (req, res) => {
-    const { pid } = req.params
-    const response = await Brand.findByIdAndUpdate(pid, req.body, { new: true })
-    return res.status(200).json(
-        // success: response ? true : false,
-        response ? response : "Can not get brands list"
-    )
+    const updatedBrand = await Brand.findByIdAndUpdate(
+        req.params.brandId,
+        req.body,
+        { new: true }
+    );
+    if (!updatedBrand) {
+        sendResponse(res, 404, 'Brand not found', null);
+    } else {
+        sendResponse(res, 200, 'Brand updated successfully', updatedBrand);
+    }
 })
 const deleteBrand = asyncHandler(async (req, res) => {
-    const { pid } = req.params
-    const response = await Brand.findByIdAndDelete(pid)
-    return res.status(200).json({
-        success: response ? true : false,
-        mess: response ? 'deleted' : 'can not delete Brand'
-    })
+    const deletedBrand = await Brand.findByIdAndRemove(req.params.brandId);
+    if (!deletedBrand) {
+        sendResponse(res, 404, 'Brand not found', null);
+    } else {
+        sendResponse(res, 200, 'Brand deleted successfully', deletedBrand);
+    }
 })
 
 module.exports = {
     createBrand,
-    getBrands,
+    getAllBrand,
+    getBrand,
     updateBrand,
     deleteBrand
 }

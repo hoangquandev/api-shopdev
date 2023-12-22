@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product API Documentation</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        h1,
+        h2 {
+            color: #333;
+        }
+
+        pre {
+            /* background-color: #f8f8f8; */
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #000;
+            color: white;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            color: #fff;
+            padding: 5px;
+            border-radius: 3px;
+            background-color: #000;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Product API Documentation</h1>
+
+    <section>
+        <h2>Product Model</h2>
+        <p>The product model represents the structure of a product in the system.</p>
+        <pre>
+            name: {
+                type: String,
+                required: true,
+            },
+            description: {
+                type: String,
+                required: true,
+            },
+            brand: {
+                type: String,
+            },
+            stock: {
+                type: Number,
+                required: true,
+            },
+            price: {
+                type: Number,
+                required: true,
+            },
+            salePrice: {
+                type: Number,
+            },
+            published: {
+                type: Boolean,
+                default: false,
+            },
+            sold: {
+                type: Number,
+                default: 0,
+            },
+            category: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Category',
+            },
+            thumbnail: {
+                type: String,
+            },
+            images: [
+                {
+                    type: String,
+                },
+            ],
+            ratings: [
+                {
+                    userId: {
+                        type: mongoose.Schema.Types.ObjectId,
+                        ref: 'User',
+                    },
+                    rating: {
+                        type: Number,
+                        min: 1,
+                        max: 5,
+                    },
+                    comment: {
+                        type: String,
+                    },
+                },
+            ],
+            slug: {
+                type: String,
+                unique: true,
+            },
+        </pre>
+    </section>
+
+    <section>
+        <h2>Get All Products</h2>
+        <p><strong>Endpoint:</strong> GET /api/products</p>
+        <p><strong>Description:</strong> Retrieve a list of products.</p>
+        <p><strong>Query Parameters:</strong></p>
+        <ul>
+            <li><code>page</code>: Page number for pagination (default is 1)</li>
+            <li><code>limit</code>: Number of products per page (default is 10)</li>
+            <li><code>search</code>: Search query for product name</li>
+            <li><code>brand</code>: Filter by brand</li>
+            <li><code>minPrice</code> and <code>maxPrice</code>: Filter by price range</li>
+            <li><code>categories</code>: Filter by category (comma-separated list of category IDs)</li>
+            <li><code>inStock</code>: Filter to include only products in stock (true) or all products (false or not
+                provided)</li>
+            <li><code>sortBy</code>: The field by which to sort the results (e.g., "name", "order", "price")</li>
+            <li><code>sortOrder</code>: The sort order, either "asc" (ascending) or "desc" (descending)</li>
+        </ul>
+        <p><strong>Example Request:</strong></p>
+        <pre>
+            GET /api/products?page=1&amp;limit=10&amp;search=example&amp;brand=brand-name&amp;minPrice=10&amp;maxPrice=100&amp;categories=cat1,cat2&amp;inStock=true&amp;sortBy=name&amp;sortOrder=asc
+        </pre>
+        <p><strong>Example Response:</strong></p>
+        <pre>
+            {
+                "products": [
+                    {
+                        "_id": "product-id-1",
+                        "name": "Example Product 1",
+                        "description": "This is an example product.",
+                        "price": 29.99,
+                        "category": "category-id-1",
+                        // ... other fields
+                    },
+                    {
+                        "_id": "product-id-2",
+                        "name": "Example Product 2",
+                        "description": "Another example product.",
+                        "price": 19.99,
+                        "category": "category-id-2",
+                        // ... other fields
+                    },
+                    // ... additional products
+                ],
+                "currentPage": 1,
+                "totalPages": 2,
+                "totalProducts": 15
+            }
+        </pre>
+    </section>
+
+    <section>
+        <h2>Create a New Product</h2>
+        <p><strong>Endpoint:</strong> POST /api/products</p>
+        <p><strong>Description:</strong> Create a new product.</p>
+        <p><strong>Request Body:</strong></p>
+        <pre>
+            {
+                "name": "Product Name",
+                "description": "Product Description",
+                "price": 19.99,
+                "category": "category-id",
+                // ... other fields
+            }
+        </pre>
+        <p><strong>Example Request:</strong></p>
+        <pre>
+            POST /api/products
+            Content-Type: application/json
+
+            {
+                "name": "New Product",
+                "description": "A new product",
+                "price": 29.99,
+                "category": "category-id"
+            }
+        </pre>
+        <p><strong>Example Response:</strong></p>
+        <pre>
+            {
+                "_id": "new-product-id",
+                "name": "New Product",
+                "description": "A new product",
+                "price": 29.99,
+                "category": "category-id",
+                // ... other fields
+            }
+        </pre>
+    </section>
+
+    <section>
+        <h2>Update a Product</h2>
+        <p><strong>Endpoint:</strong> PUT /api/products/:id</p>
+        <p><strong>Description:</strong> Update an existing product by ID.</p>
+        <p><strong>Request Body:</strong></p>
+        <pre>
+            {
+                "name": "Updated Product Name",
+                "description": "Updated Product Description",
+                // ... other fields to update
+            }
+        </pre>
+        <p><strong>Example Request:</strong></p>
+        <pre>
+            PUT /api/products/updated-product-id
+            Content-Type: application/json
+
+            {
+                "name": "Updated Name",
+                "description": "Updated Description"
+            }
+        </pre>
+        <p><strong>Example Response:</strong></p>
+        <pre>
+            {
+                "_id": "updated-product-id",
+                "name": "Updated Name",
+                "description": "Updated Description",
+                // ... other fields
+            }
+        </pre>
+    </section>
+
+    <section>
+        <h2>Delete a Product</h2>
+        <p><strong>Endpoint:</strong> DELETE /api/products/:id</p>
+        <p><strong>Description:</strong> Delete an existing product by ID.</p>
+        <p><strong>Example Request:</strong></p>
+        <pre>
+            DELETE /api/products/deleted-product-id
+        </pre>
+        <p><strong>Example Response:</strong></p>
+        <pre>
+            {
+                "_id": "deleted-product-id",
+                "name": "Deleted Product",
+                "description": "A product that has been deleted",
+                // ... other fields
+            }
+        </pre>
+    </section>
+
+</body>
+
+</html>
