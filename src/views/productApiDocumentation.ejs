@@ -249,6 +249,31 @@
             }
         </pre>
     </section>
+    <section>
+        <h2>Add Banner to Slider</h2>
+        <p>Add a new banner to the slider of the site.</p>
+        <pre>
+            <code>
+    POST /site-settings/add-banner
+    {
+        "image": "path/to/new-banner.jpg"
+    }
+            </code>
+        </pre>
+        <h3>Example Response</h3>
+        <pre>
+            <code>
+    200 OK
+    {
+        "success": true,
+        "message": "Banner added successfully",
+        "data": {
+            // Updated site settings data with the new banner
+        }
+    }
+            </code>
+        </pre>
+    </section>
     <!-- Add a link to return to the main API documentation -->
     <a href="/api/documentation">Back to Main Documentation</a>
 </body>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Add your HTML head content here -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Settings API Documentation</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        h1,
+        h2 {
+            color: #333;
+        }
+
+        pre {
+            /* background-color: #f8f8f8; */
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #000;
+            color: white;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            color: #fff;
+            padding: 5px;
+            border-radius: 3px;
+            background-color: #000;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Site Settings API Documentation</h1>
+
+    <section>
+        <h2>Get Site Settings</h2>
+        <p>Retrieve the current site settings.</p>
+        <pre>
+        <code>
+GET /site-settings
+        </code>
+    </pre>
+        <h3>Example Response</h3>
+        <pre>
+        <code>
+200 OK
+{
+    "success": true,
+    "message": "Site settings retrieved successfully",
+    "data": {
+        "general": {
+            "logo": "path/to/logo.png",
+            "sitename": "Your Site",
+            "siteDescription": "Description of your site"
+        },
+        "topbar": {
+            "phone": "123-456-7890",
+            "email": "info@example.com"
+        },
+        "bannerSlider": [
+            {
+                "image": "path/to/banner1.jpg"
+            },
+            // ... other banner images
+        ]
+    }
+}
+        </code>
+    </pre>
+    </section>
+
+    <section>
+        <h2>Update General Settings</h2>
+        <p>Update the general settings of the site.</p>
+        <pre>
+        <code>
+PUT /site-settings/update-general
+{
+    "logo": "path/to/new-logo.png",
+    "sitename": "New Site Name",
+    "siteDescription": "New description of your site"
+}
+        </code>
+    </pre>
+        <h3>Example Response</h3>
+        <pre>
+        <code>
+200 OK
+{
+    "success": true,
+    "message": "General settings updated successfully",
+    "data": {
+        // Updated site settings data
+    }
+}
+        </code>
+    </pre>
+    </section>
+    <section>
+        <h2>Update Topbar Settings</h2>
+        <p>Update the top bar settings of the site.</p>
+        <pre>
+        <code>
+PUT /site-settings/update-topbar
+{
+    "phone": "123-456-7890",
+    "email": "new-email@example.com"
+}
+        </code>
+    </pre>
+        <h3>Example Response</h3>
+        <pre>
+        <code>
+200 OK
+{
+    "success": true,
+    "message": "Topbar settings updated successfully",
+    "data": {
+        // Updated site settings data
+    }
+}
+        </code>
+    </pre>
+    </section>
+    <section>
+        <h2>Remove Banner from Slider</h2>
+        <p>Remove a banner from the slider of the site.</p>
+        <pre>
+        <code>
+DELETE /site-settings/remove-banner/:bannerId
+        </code>
+    </pre>
+        <h3>Parameters</h3>
+        <ul>
+            <li><code>bannerId</code>: The ID of the banner to be removed.</li>
+        </ul>
+        <h3>Example Response</h3>
+        <pre>
+        <code>
+200 OK
+{
+    "success": true,
+    "message": "Banner removed successfully",
+    "data": {
+        // Updated site settings data after removing the banner
+    }
+}
+        </code>
+    </pre>
+    </section>
+
+    <!-- Add similar sections for other routes -->
+
+    <!-- Add a link to return to the main API documentation -->
+    <a href="/api/documentation">Back to Main Documentation</a>
+</body>
+
+</html>
