@@ -1,6 +1,7 @@
 const Product = require('../models/product.model')
 const asyncHandler = require('express-async-handler')
-const slugify = require('slugify')
+const slugify = require('slugify');
+const { sendResponse } = require('../utils/sendResponse');
 
 const createProduct = asyncHandler(async (req, res) => {
     const product = new Product(req.body);
