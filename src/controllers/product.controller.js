@@ -78,6 +78,7 @@ const getProducts = asyncHandler(async (req, res) => {
         sortOrder,
         rating,
         category,
+        brand
     } = req.query;
 
     // Build the filter object based on the provided parameters
@@ -99,6 +100,10 @@ const getProducts = asyncHandler(async (req, res) => {
         filter.category = { $in: categoryIds };
     }
 
+    if (brand) {
+        filter.brand = brand;
+    }
+
     if (rating !== undefined) {
         // Handle products with and without ratings
         filter.$or = [
@@ -108,12 +113,20 @@ const getProducts = asyncHandler(async (req, res) => {
     }
 
     // Fetch products based on the filter and populate the category details
-    let query = Product.find(filter).populate('category', 'name');
+    let query = Product.find(filter).populate('brand', 'name').populate('category', 'name');
 
     // Sorting
     if (sortBy) {
-        const sortOrderValue = sortOrder === 'desc' ? -1 : 1;
-        query = query.sort({ [sortBy]: sortOrderValue });
+        let sortOption = {};
+
+        // Xác định trường và thứ tự sắp xếp
+        if (sortBy === 'createdAt') {
+            sortOption = { createdAt: sortOrder === 'desc' ? -1 : 1 };
+        } else if (sortBy === 'price') {
+            sortOption = { price: sortOrder === 'desc' ? -1 : 1 };
+        }
+
+        query = query.sort(sortOption);
     }
 
     // Pagination
