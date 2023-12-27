@@ -11,7 +11,7 @@ const createProduct = asyncHandler(async (req, res) => {
 const getProduct = asyncHandler(async (req, res) => {
     const { slug } = req.params;
 
-    const product = await Product.findOne({ slug });
+    const product = await Product.findOne({ slug }).populate('category', 'name');
 
     if (!product) {
         return sendResponse(res, 404, 'Product not found', null);
@@ -19,52 +19,119 @@ const getProduct = asyncHandler(async (req, res) => {
 
     sendResponse(res, 200, 'Product retrieved successfully', product);
 })
+const ratingProduct = asyncHandler(async (req, res) => {
+    const productId = req.params.productId;
+    const { rating, comment } = req.body;
+    const userId = req.user.id; // Assuming you have user authentication middleware
+
+    // Check if the user has a delivered order
+    const hasDeliveredOrder = await Order.exists({
+        customer: userId,
+        orderStatus: 'Delivered',
+    });
+
+    if (!hasDeliveredOrder) {
+        return sendResponse(res, 403, null, 'You can only rate products after a delivered order.');
+    }
+    // Validate rating value
+    if (rating < 1 || rating > 5) {
+        return sendResponse(res, 400, null, 'Invalid rating value. Must be between 1 and 5.');
+    }
+
+    // Find the product by ID
+    const product = await Product.findById(productId);
+
+    if (!product) {
+        return sendResponse(res, 404, null, 'Product not found.');
+    }
+
+    // Check if the user has already rated the product
+    const existingRating = product.ratings.find((r) => r.userId.toString() === userId);
+    if (existingRating) {
+        return sendResponse(res, 400, null, 'You have already rated this product.');
+    }
+
+    // Add the new rating
+    product.ratings.push({
+        userId,
+        rating,
+        comment,
+    });
+
+    // Recalculate the average rating (optional)
+    // product.averageRating = calculateAverageRating(product.ratings);
+
+    // Save the updated product
+    await product.save();
+
+    sendResponse(res, 200, 'Rating added successfully.');
+})
 // Filtering, sorting & pagination
 const getProducts = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, search, brand, minPrice, maxPrice, categories, inStock, sortBy, sortOrder } = req.query;
+    const {
+        page = 1,
+        limit = 10,
+        minPrice,
+        maxPrice,
+        inStock,
+        sortBy,
+        sortOrder,
+        rating,
+        category,
+    } = req.query;
 
-    // Build the filter object
+    // Build the filter object based on the provided parameters
     const filter = {};
-    if (search) {
-        filter.name = { $regex: search, $options: 'i' };
-    }
-    if (brand) {
-        filter.brand = brand;
-    }
-    if (minPrice || maxPrice) {
-        filter.price = {};
-        if (minPrice) filter.price.$gte = parseFloat(minPrice);
-        if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
-    }
-    if (categories) {
-        filter.category = { $in: categories.split(',') };
-    }
-    if (inStock === 'true') {
-        filter.stock = { $gt: 0 };
+
+    if (minPrice !== undefined && maxPrice !== undefined) {
+        filter.price = { $gte: parseFloat(minPrice), $lte: parseFloat(maxPrice) };
+    } else if (minPrice !== undefined) {
+        filter.price = { $gte: parseFloat(minPrice) };
+    } else if (maxPrice !== undefined) {
+        filter.price = { $lte: parseFloat(maxPrice) };
     }
 
-    // Build the sort object
-    const sort = {};
+    if (inStock !== undefined) {
+        filter.inStock = inStock === 'true'; // Convert string to boolean
+    }
+    const categoryIds = category ? category.split(',') : [];
+    if (categoryIds.length > 0) {
+        filter.category = { $in: categoryIds };
+    }
+
+    if (rating !== undefined) {
+        // Handle products with and without ratings
+        filter.$or = [
+            { 'ratings.rating': { $exists: false } }, // Products without ratings
+            { 'ratings.rating': { $gte: parseFloat(rating) } }, // Products with ratings
+        ];
+    }
+
+    // Fetch products based on the filter and populate the category details
+    let query = Product.find(filter).populate('category', 'name');
+
+    // Sorting
     if (sortBy) {
-        sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+        const sortOrderValue = sortOrder === 'desc' ? -1 : 1;
+        query = query.sort({ [sortBy]: sortOrderValue });
     }
 
-    // Execute the query with pagination, filtering, and sorting
-    const products = await Product.find(filter)
-        .sort(sort)
-        .skip((page - 1) * limit)
-        .limit(parseInt(limit))
-        .exec();
+    // Pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
 
-    // Count the total number of products matching the filter
-    const totalProducts = await Product.countDocuments(filter).exec();
+    const totalProducts = await Product.countDocuments(filter);
+    const products = await query.skip(startIndex).limit(limit);
 
-    sendResponse(res, 200, 'Products retrieved successfully', {
-        products,
-        currentPage: page,
+    // Construct the response object with pagination details
+    const response = {
+        totalProducts,
         totalPages: Math.ceil(totalProducts / limit),
-        totalProducts
-    });
+        currentPage: page,
+        products,
+    };
+
+    sendResponse(res, 200, "All products with fillter", response);
 })
 const updateProduct = asyncHandler(async (req, res) => {
     const { id } = req.params;
@@ -98,5 +165,6 @@ module.exports = {
     getProduct,
     getProducts,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    ratingProduct
 }
